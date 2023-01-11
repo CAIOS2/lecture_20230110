@@ -1,8 +1,8 @@
 //
 //  AppDelegate.swift
-//  TableViewStarter
+//  Task0110
 //
-//  Created by Education on 17/01/2021.
+//  Created by Dmitrij Aneicik on 2023-01-10.
 //
 
 import UIKit
