@@ -47,8 +47,11 @@ class ViewController: UITableViewController {
         // reikalingas kad pagautu skirtingus stilius
         cell = UITableViewCell(style: UITableViewCell.CellStyle.subtitle, reuseIdentifier: "DefaultCell")
         
-        cell.textLabel?.text = contactsInSection(sectionTitle: sortedSectionList[indexPath.section])[indexPath.row].name
-        cell.detailTextLabel?.text = contactsInSection(sectionTitle: sortedSectionList[indexPath.section])[indexPath.row].phone
+        let contacts = contactsInSection(sectionTitle: sortedSectionList[indexPath.section])
+        
+        cell.textLabel?.text = contacts[indexPath.row].name
+        cell.detailTextLabel?.text = contacts[indexPath.row].phone
+
         return cell
     }
     
