@@ -16,11 +16,13 @@ class ViewController: UITableViewController {
         Contact(name: "Mindaugas P", surname: "P", phone: "+371"),
         Contact(name: "Vytautas D", surname: "D", phone: "+372"),
         Contact(name: "Algirdas P", surname: "P", phone: "+371"),
+        Contact(name: "Rolandas R", surname: "R", phone: "+371")
     ]
     
     var sortedSectionList: [String] = []
 
     override func viewDidLoad() {
+        tableView.delegate = self
          
         
         //MARK: susiformuojame array sortedSectionList
@@ -55,6 +57,28 @@ class ViewController: UITableViewController {
         return cell
     }
     
+    // rodo alerta paspaudus ant celes:
+    override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        showAlert()
+    }
+    
+    // celes istrynimas
+//    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+//           return true
+//       }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            
+            contacts.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .fade)
+        } else if editingStyle == .insert {
+            //            self.tableView.reloadData()
+            
+        }
+    }
+
+    
     //MARK: tableView cells qty
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return contactsInSection(sectionTitle: sortedSectionList[section]).count
@@ -83,9 +107,21 @@ class ViewController: UITableViewController {
         return contactsInSection
     }
     
-    
-    
+    func showAlert() {
+        
+        let callAlert = UIAlertController(
+            title: "Caller", message: "Do you want to call to user ?", preferredStyle: .alert
+        )
+        let alertAction = UIAlertAction(title: "OK", style: .default) {_ in
+            self.dismiss(animated: true)
+        }
+        callAlert.addAction(alertAction)
+        present(callAlert, animated: true, completion: nil)
+    }
 }
+    
+    
+    
 
 
 class Contact {
@@ -102,3 +138,58 @@ class Contact {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//struct Contact {
+//    let name: String
+//    let number: String
+//}
+// 
+//var contacts: [Contact] = [Contact(name: "A", number: "123"), Contact(name: "B", number: "345")]
+// 
+//class ViewController: UITableViewController {
+//    
+//    override func viewDidLoad() {
+//        super.viewDidLoad()
+//        
+//    }
+//    
+//    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "DefaultCell",
+//                                                 for: indexPath) // Cell registered in the Main.storyboard
+//        
+//        cell.textLabel?.text = contacts[indexPath.row].name
+//        cell.detailTextLabel?.text = contacts[indexPath.row].number
+//        
+//        return cell
+//    }
+//    
+//    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+//        return contacts.count
+//    }
+//    
+//    override func numberOfSections(in tableView: UITableView) -> Int {
+//        return 1
+//    }
+//}
+//
