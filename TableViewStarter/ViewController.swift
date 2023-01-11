@@ -7,98 +7,74 @@
 
 import UIKit
 
-
-
 class ViewController: UITableViewController {
     
-    var contacts: [Contact] = [
-        Contact(name: "Jogaila K", surname: "K.", phone: "+370"),
-        Contact(name: "Mindaugas P", surname: "P", phone: "+371"),
-        Contact(name: "Vytautas D", surname: "D", phone: "+372"),
-        Contact(name: "Algirdas P", surname: "P", phone: "+371"),
-    ]
+   private var contactsByFirstLetter: [String: [Contact]] = [:]
+   private var contactFirstLettersSorted: [String] = []
     
-    var sortedSectionList: [String] = []
-
     override func viewDidLoad() {
-         
+        super.viewDidLoad()
         
-        //MARK: susiformuojame array sortedSectionList
-            var firstSurnameLetterList: Set<String> = []
-            for contact in contacts {
-                let firstLetter: String = String(contact.surname.prefix(1))
-                
-                firstSurnameLetterList.insert(firstLetter)
-                sortedSectionList = firstSurnameLetterList.sorted()
+        for contact in contactsList {
+            if contactsByFirstLetter[String(contact.name.first!)] != nil {
+                contactsByFirstLetter[String(contact.name.first!)]?.append(contact)
+            } else {
+                contactsByFirstLetter[String(contact.name.first!)] = [contact]
             }
+        }
+        
+        contactFirstLettersSorted = contactsByFirstLetter.keys.sorted()
+        
     }
-    
-    //MARK: tableView sections header
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection
-                                section: Int) -> String? {
-        return "::  \(sortedSectionList[section])"
-    }
-    
-    //MARK: tableView sections and them cells
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var cell = tableView.dequeueReusableCell(withIdentifier: "DefaultCell",
-                                                 for: indexPath) // Cell registered in the Main.storyboard
         
-        // reikalingas kad pagautu skirtingus stilius
-        cell = UITableViewCell(style: UITableViewCell.CellStyle.subtitle, reuseIdentifier: "DefaultCell")
+        let cell = tableView.dequeueReusableCell(withIdentifier: "DefaultCell",
+                                                 for: indexPath)
         
-        let contacts = contactsInSection(sectionTitle: sortedSectionList[indexPath.section])
+        cell.textLabel?.text = contactsByFirstLetter[contactFirstLettersSorted[indexPath.section]]?[indexPath.row].name
+        cell.detailTextLabel?.text = contactsByFirstLetter[contactFirstLettersSorted[indexPath.section]]?[indexPath.row].phoneNumber
         
-        cell.textLabel?.text = contacts[indexPath.row].name
-        cell.detailTextLabel?.text = contacts[indexPath.row].phone
-
         return cell
     }
     
-    //MARK: tableView cells qty
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return contactsInSection(sectionTitle: sortedSectionList[section]).count
+        contactsByFirstLetter[contactFirstLettersSorted[section]]?.count ?? 0
     }
     
-    //MARK: tableView sections qty
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return sortedSectionList.count
+        return contactFirstLettersSorted.count
+    }
+    
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return contactFirstLettersSorted[section]
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        alert(number: (contactsByFirstLetter[contactFirstLettersSorted[indexPath.section]]?[indexPath.row].phoneNumber)!)
     }
     
     
-    //MARK: func contactsInSection to get contacts in current section
-    func contactsInSection(sectionTitle: String) -> [Contact] {
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         
-        var contactsInSection: [Contact] = []
-        for contact in contacts {
-            if contact.surname.prefix(1) == sectionTitle {
-                contactsInSection.append(contact)
-                print("append")
-            }
+        if editingStyle == .delete {
+            print("Contact: \(String(describing: contactsByFirstLetter[contactFirstLettersSorted[indexPath.section]]?[indexPath.row].name)) deleted.")
+            
+            contactsList.remove(at: indexPath.row)
+            contactsByFirstLetter.removeValue(forKey: contactFirstLettersSorted[indexPath.section])
+            tableView.deleteRows(at: [indexPath], with: .fade)
+//            tableView.reloadData()
         }
-        // perrikiuoja irasus pagal name
-         contactsInSection.sort{
-            $0.name < $1.name
-          }
-        return contactsInSection
     }
     
     
     
-}
-
-
-class Contact {
-    var name: String
-    var surname: String
-    var phone: String
-    
-    init(name: String, surname: String, phone: String) {
-        self.name = name
-        self.surname = surname
-        self.phone = phone
+    private func alert(number: String) {
+        let alert = UIAlertController(title: "Do you want to call this number?",
+                                      message: number,
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Call", style: .default))
+        alert.addAction(UIAlertAction(title: "Cancel", style: .destructive))
+        present(alert, animated: true)
     }
-
 }
-
 
