@@ -19,23 +19,23 @@ class ViewController: UITableViewController {
     ]
     
     var sortedSectionList: [String] = []
-
+    
     override func viewDidLoad() {
-         
+        
         
         //MARK: susiformuojame array sortedSectionList
-            var firstSurnameLetterList: Set<String> = []
-            for contact in contacts {
-                let firstLetter: String = String(contact.surname.prefix(1))
-                
-                firstSurnameLetterList.insert(firstLetter)
-                sortedSectionList = firstSurnameLetterList.sorted()
-            }
+        var firstSurnameLetterList: Set<String> = []
+        for contact in contacts {
+            let firstLetter: String = String(contact.surname.prefix(1))
+            
+            firstSurnameLetterList.insert(firstLetter)
+            sortedSectionList = firstSurnameLetterList.sorted()
+        }
     }
     
     //MARK: tableView sections header
     override func tableView(_ tableView: UITableView, titleForHeaderInSection
-                                section: Int) -> String? {
+                            section: Int) -> String? {
         return "::  \(sortedSectionList[section])"
     }
     
@@ -54,13 +54,11 @@ class ViewController: UITableViewController {
         
         
         
-
+        
         return cell
     }
-                    
+    //MARK: cell action, call alert
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-      //  print("cell tapped")
-       // _ = UITableViewCell(style: UITableViewCell.CellStyle.subtitle, reuseIdentifier: "DefaultCell")
         let contacts = contactsInSection(sectionTitle: sortedSectionList[indexPath.section])
         let number = contacts[indexPath.row].phone
         let name = contacts[indexPath.row].name
@@ -69,7 +67,7 @@ class ViewController: UITableViewController {
         
     }
     
-                                                
+    
     
     //MARK: tableView cells qty
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -81,6 +79,7 @@ class ViewController: UITableViewController {
         return sortedSectionList.count
     }
     
+    //MARK: Functions
     
     //MARK: func contactsInSection to get contacts in current section
     func contactsInSection(sectionTitle: String) -> [Contact] {
@@ -89,18 +88,18 @@ class ViewController: UITableViewController {
         for contact in contacts {
             if contact.surname.prefix(1) == sectionTitle {
                 contactsInSection.append(contact)
-              //  print("append")
+                //  print("append")
             }
         }
         // perrikiuoja irasus pagal name
-         contactsInSection.sort{
+        contactsInSection.sort{
             $0.name < $1.name
-          }
+        }
         return contactsInSection
     }
     
     func showCellAllert(number: String, name: String) {
-       // print("show alert")
+        // print("show alert")
         
         
         lazy var callAlert: UIAlertController = {
@@ -144,7 +143,7 @@ class Contact {
         self.surname = surname
         self.phone = phone
     }
-
+    
 }
 
 
