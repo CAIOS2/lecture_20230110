@@ -20,23 +20,66 @@ class ViewController: UITableViewController {
     
     var sortedSectionList: [String] = []
 
+                        // Section Name   :     DataObjects
+    var tableViewData = [String: [Contact]]()
+    var tableViewSectionsCount: Int = 0
+
+
+    var sectionsNames = [String]()
+//    var sectionCount = sectionsNames.count
+    var sectionsData = [[Contact]]()
+
+
     override func viewDidLoad() {
-         
-        
+
         //MARK: susiformuojame array sortedSectionList
-            var firstSurnameLetterList: Set<String> = []
-            for contact in contacts {
-                let firstLetter: String = String(contact.surname.prefix(1))
-                
-                firstSurnameLetterList.insert(firstLetter)
-                sortedSectionList = firstSurnameLetterList.sorted()
+        var firstSurnameLetterList: Set<String> = []
+        for contact in contacts {
+            let firstLetter: String = String(contact.surname.prefix(1))
+
+            firstSurnameLetterList.insert(firstLetter)
+            sortedSectionList = firstSurnameLetterList.sorted()
+        }
+
+        createSections()
+    }
+
+    private func createSections() {
+        for contact in contacts {
+            if let contactArray = tableViewData[contact.surname] {
+                // Adds to the section
+                var array = Array(contactArray)
+                array.append(contact)
+                tableViewData[contact.surname] = array
+            } else {
+                // Creates a new section
+                var array = Array<Contact>()
+                array.append(contact)
+                tableViewData[contact.surname] = array
+                tableViewSectionsCount = tableViewSectionsCount + 1
             }
+        }
+
+        for key in tableViewData {
+            print("For key: \(key.key) there is these values:")
+            for value in key.value {
+                print("     \(value.name)   \(value.surname)")
+            }
+        }
     }
     
     //MARK: tableView sections header
     override func tableView(_ tableView: UITableView, titleForHeaderInSection
                                 section: Int) -> String? {
-        return "::  \(sortedSectionList[section])"
+
+        for (index, dictValue) in tableViewData.enumerated() {
+            if index == section {
+                return "::  \(dictValue.key)"
+            }
+        }
+
+
+        return "Errror"//"::  \(sortedSectionList[section])"
     }
     
     //MARK: tableView sections and them cells
@@ -46,20 +89,38 @@ class ViewController: UITableViewController {
         
         // reikalingas kad pagautu skirtingus stilius
         cell = UITableViewCell(style: UITableViewCell.CellStyle.subtitle, reuseIdentifier: "DefaultCell")
+
+        var textLabelText = "🐸"
+        var detailTextLabelText = "🐸"
+
+        for (index, dictValue) in tableViewData.enumerated() {
+            if index == indexPath.section {
+                let value = dictValue.value[indexPath.row]
+                textLabelText = value.name
+                detailTextLabelText = value.phone
+            }
+        }
         
-        cell.textLabel?.text = contactsInSection(sectionTitle: sortedSectionList[indexPath.section])[indexPath.row].name
-        cell.detailTextLabel?.text = contactsInSection(sectionTitle: sortedSectionList[indexPath.section])[indexPath.row].phone
+        cell.textLabel?.text = textLabelText
+        cell.detailTextLabel?.text = detailTextLabelText  //= contactsInSection(sectionTitle: sortedSectionList[indexPath.section])[indexPath.row].phone
         return cell
     }
     
     //MARK: tableView cells qty
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return contactsInSection(sectionTitle: sortedSectionList[section]).count
+
+        for (index, dictValue) in tableViewData.enumerated() {
+            if index == section {
+                return dictValue.value.count
+            }
+        }
+
+        return 0//contactsInSection(sectionTitle: sortedSectionList[section]).count
     }
     
     //MARK: tableView sections qty
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return sortedSectionList.count
+        return tableViewData.count//sortedSectionList.count
     }
     
     
