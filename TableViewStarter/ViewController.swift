@@ -51,9 +51,25 @@ class ViewController: UITableViewController {
         
         cell.textLabel?.text = contacts[indexPath.row].name
         cell.detailTextLabel?.text = contacts[indexPath.row].phone
+        
+        
+        
 
         return cell
     }
+                    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+      //  print("cell tapped")
+       // _ = UITableViewCell(style: UITableViewCell.CellStyle.subtitle, reuseIdentifier: "DefaultCell")
+        let contacts = contactsInSection(sectionTitle: sortedSectionList[indexPath.section])
+        let number = contacts[indexPath.row].phone
+        let name = contacts[indexPath.row].name
+        showCellAllert(number: number, name: name)
+        //print("call to number: \()")
+        
+    }
+    
+                                                
     
     //MARK: tableView cells qty
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -73,7 +89,7 @@ class ViewController: UITableViewController {
         for contact in contacts {
             if contact.surname.prefix(1) == sectionTitle {
                 contactsInSection.append(contact)
-                print("append")
+              //  print("append")
             }
         }
         // perrikiuoja irasus pagal name
@@ -83,7 +99,37 @@ class ViewController: UITableViewController {
         return contactsInSection
     }
     
+    func showCellAllert(number: String, name: String) {
+       // print("show alert")
+        
+        
+        lazy var callAlert: UIAlertController = {
+            let alert = UIAlertController(
+                title: "Do you want to call this number? (to \(name))",
+                message: nil,
+                preferredStyle: .alert
+            )
+            
+            let alertButton = UIAlertAction(title: "Yes", style: .default) {_ in
+                self.makeAPhoneCall(toNumber: number)
+            }
+            
+            let cancelButton = UIAlertAction(title: "No No", style: .destructive)
+            
+            alert.addAction(alertButton)
+            alert.addAction(cancelButton)
+            return alert
+        }()
+        
+        present(callAlert, animated: true, completion: nil)
+    }
     
+    func makeAPhoneCall(toNumber: String)  {
+        print("trying to call")
+        guard let number = URL(string: "tel://" + "\(toNumber)") else { return }
+        print("Url: \(number)")
+        UIApplication.shared.open(number)
+    }
     
 }
 
