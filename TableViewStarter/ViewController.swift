@@ -16,133 +16,64 @@ class ViewController: UITableViewController {
         Contact(name: "Mindaugas P", surname: "P", phone: "+371"),
         Contact(name: "Vytautas D", surname: "D", phone: "+372"),
         Contact(name: "Algirdas P", surname: "P", phone: "+371"),
+        Contact(name: "Tadas P", surname: "P", phone: "somet")
     ]
-    
-    var sortedSectionList: [String] = []
 
-                        // Section Name   :     DataObjects
-    var tableViewData = [String: [Contact]]()
-    var tableViewSectionsCount: Int = 0
-
-
-    var sectionsNames = [String]()
-//    var sectionCount = sectionsNames.count
-    var sectionsData = [[Contact]]()
-
-
-    override func viewDidLoad() {
-
-        //MARK: susiformuojame array sortedSectionList
-        var firstSurnameLetterList: Set<String> = []
-        for contact in contacts {
-            let firstLetter: String = String(contact.surname.prefix(1))
-
-            firstSurnameLetterList.insert(firstLetter)
-            sortedSectionList = firstSurnameLetterList.sorted()
+    var tableData: [String: [Contact]] {
+        get {
+            Dictionary(grouping: contacts, by: { contact in String(contact.surname.prefix(1)) })
         }
-
-        createSections()
     }
 
-    private func createSections() {
-        for contact in contacts {
-            if let contactArray = tableViewData[contact.surname] {
-                // Adds to the section
-                var array = Array(contactArray)
-                array.append(contact)
-                tableViewData[contact.surname] = array
-            } else {
-                // Creates a new section
-                var array = Array<Contact>()
-                array.append(contact)
-                tableViewData[contact.surname] = array
-                tableViewSectionsCount = tableViewSectionsCount + 1
-            }
-        }
-
-        for key in tableViewData {
-            print("For key: \(key.key) there is these values:")
-            for value in key.value {
-                print("     \(value.name)   \(value.surname)")
-            }
+    var tableSections: [String] {
+        get {
+            tableData.keys.sorted { $0.caseInsensitiveCompare($1) == .orderedAscending }
         }
     }
     
     //MARK: tableView sections header
     override func tableView(_ tableView: UITableView, titleForHeaderInSection
                                 section: Int) -> String? {
-
-        for (index, dictValue) in tableViewData.enumerated() {
-            if index == section {
-                return "::  \(dictValue.key)"
-            }
-        }
-
-
-        return "Errror"//"::  \(sortedSectionList[section])"
+        return tableSections[section]
     }
     
     //MARK: tableView sections and them cells
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         var cell = tableView.dequeueReusableCell(withIdentifier: "DefaultCell",
                                                  for: indexPath) // Cell registered in the Main.storyboard
-        
-        // reikalingas kad pagautu skirtingus stilius
-        cell = UITableViewCell(style: UITableViewCell.CellStyle.subtitle, reuseIdentifier: "DefaultCell")
 
-        var textLabelText = "🐸"
-        var detailTextLabelText = "🐸"
-
-        for (index, dictValue) in tableViewData.enumerated() {
-            if index == indexPath.section {
-                let value = dictValue.value[indexPath.row]
-                textLabelText = value.name
-                detailTextLabelText = value.phone
-            }
-        }
+        let sectionKey = tableSections[indexPath.section]
+        let objectsInSection = tableData[sectionKey]
+        let object = objectsInSection?[indexPath.row]
         
-        cell.textLabel?.text = textLabelText
-        cell.detailTextLabel?.text = detailTextLabelText  //= contactsInSection(sectionTitle: sortedSectionList[indexPath.section])[indexPath.row].phone
+        cell.textLabel?.text = object?.name
+        cell.detailTextLabel?.text = object?.phone
+
         return cell
     }
     
     //MARK: tableView cells qty
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-
-        for (index, dictValue) in tableViewData.enumerated() {
-            if index == section {
-                return dictValue.value.count
-            }
-        }
-
-        return 0//contactsInSection(sectionTitle: sortedSectionList[section]).count
+        let sectionKey = tableSections[section]
+        let objectsInSection = tableData[sectionKey]
+        return objectsInSection?.count ?? 0
     }
     
     //MARK: tableView sections qty
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return tableViewData.count//sortedSectionList.count
+        return tableSections.count
     }
-    
-    
-    //MARK: func contactsInSection to get contacts in current section
-    func contactsInSection(sectionTitle: String) -> [Contact] {
-        
-        var contactsInSection: [Contact] = []
-        for contact in contacts {
-            if contact.surname.prefix(1) == sectionTitle {
-                contactsInSection.append(contact)
-                print("append")
-            }
+
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let sectionKey = tableSections[indexPath.section]
+            let objectsInSection = tableData[sectionKey]
+            let object = objectsInSection?[indexPath.row]
+
+            self.contacts.removeAll { $0.phone == object?.phone }
+            self.tableView.reloadData()
         }
-        // perrikiuoja irasus pagal name
-         contactsInSection.sort{
-            $0.name < $1.name
-          }
-        return contactsInSection
     }
-    
-    
-    
 }
 
 
